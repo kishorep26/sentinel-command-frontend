@@ -1,27 +1,45 @@
-from fastapi import FastAPI, Depends, HTTPException, status, Query
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, Depends, HTTPException, Query
+from starlette.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
+from contextlib import asynccontextmanager
 import httpx
 
 from database import (
-    get_engine,          # Use this to get the engine instance
-    get_session_maker,   # Use for direct session creation on startup
-    get_async_session,   # Use for FastAPI per-request DB session
+    get_engine,
+    get_session_maker,
+    get_async_session,
     Base,
     IncidentDB,
     AgentDB,
-    ResponseMetricDB,
 )
 
-app = FastAPI(title="Smart City AI Backend")
+# Use '_' if you don't use the app parameter (removes warning for unused param)
+@asynccontextmanager
+async def lifespan(_):
+    # Startup logic: create tables and seed agents if needed
+    engine = get_engine()
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    session_maker = get_session_maker()
+    async with session_maker() as db:
+        agents_count = (await db.execute(select(AgentDB))).scalars().all()
+        if not agents_count:
+            db.add_all([
+                AgentDB(name="Fire Agent", icon="🚒"),
+                AgentDB(name="Police Agent", icon="🚓"),
+                AgentDB(name="Ambulance Agent", icon="🚑"),
+            ])
+            await db.commit()
+    yield
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=['*'],
+app = FastAPI(title="Smart City AI Backend", lifespan=lifespan)
+
+app.add_middleware(CORSMiddleware,  # type: ignore
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -83,23 +101,6 @@ async def search_address(query: str = Query(..., min_length=3)):
         "address": item["display_name"]
     } for item in data]
     return results
-
-# --------- TABLES ON STARTUP ---------
-@app.on_event("startup")
-async def on_startup():
-    engine = get_engine()
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    session_maker = get_session_maker()
-    async with session_maker() as db:
-        agents_count = (await db.execute(select(AgentDB))).scalars().all()
-        if not agents_count:
-            db.add_all([
-                AgentDB(name="Fire Agent", icon="🚒"),
-                AgentDB(name="Police Agent", icon="🚓"),
-                AgentDB(name="Ambulance Agent", icon="🚑"),
-            ])
-            await db.commit()
 
 # --------- ENDPOINTS ---------
 
@@ -190,12 +191,12 @@ async def get_agents(db: AsyncSession = Depends(get_async_session)):
 @app.get("/stats", response_model=StatsOut)
 async def get_stats(db: AsyncSession = Depends(get_async_session)):
     result_inc = await db.execute(select(IncidentDB))
-    incs = result_inc.scalars().all()
+    incidents = result_inc.scalars().all()
     result_agents = await db.execute(select(AgentDB))
     agents = result_agents.scalars().all()
-    total = len(incs)
-    active = len([i for i in incs if i.status == "active"])
-    resolved = len([i for i in incs if i.status == "resolved"])
+    total = len(incidents)
+    active = len([i for i in incidents if i.status == "active"])
+    resolved = len([i for i in incidents if i.status == "resolved"])
     t_agents = len(agents)
     a_agents = len([a for a in agents if a.status == "Responding"])
     avg_resp = sum([a.response_time for a in agents]) / t_agents if t_agents else 0.0
