@@ -1,65 +1,102 @@
-import Image from "next/image";
+import Link from 'next/link';
 
-export default function Home() {
+export default function LandingPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="min-h-screen bg-black relative overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-950/50 via-purple-950/50 to-black"></div>
+      <div className="absolute inset-0">
+        <div className="absolute w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[100px] top-20 left-20 animate-pulse"></div>
+        <div className="absolute w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[100px] bottom-20 right-20 animate-pulse"></div>
+      </div>
+
+      <div className="relative z-10">
+        {/* Nav */}
+        <nav className="container mx-auto px-6 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-3xl shadow-2xl">
+                🏙️
+              </div>
+              <div>
+                <h1 className="text-2xl font-black text-white">SmartCity AI</h1>
+                <p className="text-xs text-blue-400">Emergency Response</p>
+              </div>
+            </div>
+            <Link
+              href="/dashboard"
+              className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-xl hover:shadow-2xl transition text-lg"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+              🚀 Launch Dashboard
+            </Link>
+          </div>
+        </nav>
+
+        {/* Hero */}
+        <section className="container mx-auto px-6 py-32">
+          <div className="max-w-5xl mx-auto text-center">
+            <div className="inline-flex items-center gap-2 bg-green-500/20 border border-green-500/50 rounded-full px-6 py-3 mb-10">
+              <div className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+              </div>
+              <span className="text-green-300 text-sm font-bold">System Online</span>
+            </div>
+
+            <h1 className="text-7xl md:text-8xl font-black text-white mb-8 leading-tight">
+              The Future of<br />
+              <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
+                Emergency Response
+              </span>
+            </h1>
+
+            <p className="text-2xl text-blue-200 mb-12 max-w-3xl mx-auto">
+              Multi-agent AI system coordinating fire, police, and medical emergencies in real-time
+            </p>
+
+            {/* Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-gradient-to-br from-blue-600/30 to-blue-700/30 border-2 border-blue-400/50 rounded-3xl p-10 shadow-2xl">
+                <div className="text-6xl font-black text-cyan-400 mb-3">3</div>
+                <div className="text-blue-200 font-bold text-lg">AI Agents</div>
+              </div>
+              <div className="bg-gradient-to-br from-purple-600/30 to-purple-700/30 border-2 border-purple-400/50 rounded-3xl p-10 shadow-2xl">
+                <div className="text-6xl font-black text-purple-400 mb-3">&lt;2min</div>
+                <div className="text-purple-200 font-bold text-lg">Response Time</div>
+              </div>
+              <div className="bg-gradient-to-br from-pink-600/30 to-red-600/30 border-2 border-pink-400/50 rounded-3xl p-10 shadow-2xl">
+                <div className="text-6xl font-black text-pink-400 mb-3">24/7</div>
+                <div className="text-pink-200 font-bold text-lg">Always Active</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Features */}
+        <section className="container mx-auto px-6 py-20">
+          <h2 className="text-6xl font-black text-white text-center mb-16">
+            Powered by AI Agents
+          </h2>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {[
+              { icon: '🚒', title: 'Fire Agent', desc: 'AI-powered fire response with severity assessment' },
+              { icon: '🚓', title: 'Police Agent', desc: 'Smart traffic control and multi-agency coordination' },
+              { icon: '🚑', title: 'Medical Agent', desc: 'Medical emergency response with trauma assessment' }
+            ].map((agent, i) => (
+              <div key={i} className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border-2 border-white/10 rounded-3xl p-8 hover:scale-105 transition">
+                <div className="text-6xl mb-6">{agent.icon}</div>
+                <h3 className="text-3xl font-black text-white mb-4">{agent.title}</h3>
+                <p className="text-blue-200 text-lg">{agent.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <footer className="container mx-auto px-6 py-12 border-t border-white/20 text-center">
+          <p className="text-blue-300">© 2025 Smart City AI</p>
+        </footer>
+      </div>
     </div>
   );
 }
