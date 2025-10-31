@@ -3,11 +3,12 @@ import ssl
 import logging
 from datetime import datetime
 from typing import AsyncGenerator, Optional
+
 from sqlalchemy.ext.asyncio import (
     create_async_engine, AsyncSession, async_sessionmaker
 )
 from sqlalchemy.pool import NullPool
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean
 from dotenv import load_dotenv
 
@@ -19,7 +20,7 @@ DATABASE_URL = os.getenv(
     "postgresql+asyncpg://postgres:password@localhost:5432/postgres"
 )
 
-# --- POOL & ENGINE CONFIGURATION FOR SERVERLESS ---
+# --- CONNECTION/POOL SETUP ---
 _engine: Optional[object] = None
 _session_maker: Optional[async_sessionmaker] = None
 
@@ -90,7 +91,7 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
             except Exception as close_error:
                 logger.warning(f"Session close failed: {close_error}")
 
-# --- MODEL DEFINITIONS ---
+# --- MODELS ---
 Base = declarative_base()
 
 class IncidentDB(Base):

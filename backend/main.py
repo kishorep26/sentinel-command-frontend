@@ -2,20 +2,18 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
-from sqlalchemy import select, update
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
-import os
 
 from database import (
-    engine,
-    AsyncSessionLocal,
+    get_engine,            # use this for engine startup
+    get_session_maker,     # proper session_maker access for startup/session creation
+    get_async_session,     # use this for FastAPI dependencies
     Base,
-    get_db,
-    init_db,
     IncidentDB,
     AgentDB,
-    ResponseMetricDB
+    ResponseMetricDB,
 )
 
 app = FastAPI(title="Smart City AI Backend")
@@ -68,9 +66,13 @@ class StatsOut(BaseModel):
 # --------- TABLES ON STARTUP ---------
 @app.on_event("startup")
 async def on_startup():
-    await init_db()
-    async with AsyncSessionLocal() as db:
-        # Optionally, add default agents only if not present
+    # Create tables
+    engine = get_engine()
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    # Optionally, add default agents if not present
+    session_maker = get_session_maker()
+    async with session_maker() as db:
         agents_count = (await db.execute(select(AgentDB))).scalars().all()
         if not agents_count:
             db.add_all([
@@ -91,7 +93,7 @@ async def health():
     return {"status": "healthy", "timestamp": datetime.now().isoformat()}
 
 @app.get("/incidents", response_model=List[IncidentOut])
-async def get_incidents(db: AsyncSession = Depends(get_db)):
+async def get_incidents(db: AsyncSession = Depends(get_async_session)):
     result = await db.execute(select(IncidentDB))
     rows = result.scalars().all()
     return [
@@ -106,7 +108,7 @@ async def get_incidents(db: AsyncSession = Depends(get_db)):
     ]
 
 @app.post("/incidents", response_model=IncidentOut)
-async def create_incident(incident: IncidentIn, db: AsyncSession = Depends(get_db)):
+async def create_incident(incident: IncidentIn, db: AsyncSession = Depends(get_async_session)):
     new_incident = IncidentDB(
         type=incident.type,
         lat=incident.location.lat,
@@ -128,7 +130,7 @@ async def create_incident(incident: IncidentIn, db: AsyncSession = Depends(get_d
     )
 
 @app.put("/incidents/{incident_id}/resolve", response_model=IncidentOut)
-async def resolve_incident(incident_id: int, db: AsyncSession = Depends(get_db)):
+async def resolve_incident(incident_id: int, db: AsyncSession = Depends(get_async_session)):
     stmt = select(IncidentDB).where(IncidentDB.id == incident_id)
     result = await db.execute(stmt)
     incident = result.scalar_one_or_none()
@@ -147,7 +149,7 @@ async def resolve_incident(incident_id: int, db: AsyncSession = Depends(get_db))
     )
 
 @app.get("/agents", response_model=List[AgentOut])
-async def get_agents(db: AsyncSession = Depends(get_db)):
+async def get_agents(db: AsyncSession = Depends(get_async_session)):
     result = await db.execute(select(AgentDB))
     rows = result.scalars().all()
     return [
@@ -167,7 +169,7 @@ async def get_agents(db: AsyncSession = Depends(get_db)):
     ]
 
 @app.get("/stats", response_model=StatsOut)
-async def get_stats(db: AsyncSession = Depends(get_db)):
+async def get_stats(db: AsyncSession = Depends(get_async_session)):
     result_inc = await db.execute(select(IncidentDB))
     incs = result_inc.scalars().all()
     result_agents = await db.execute(select(AgentDB))
