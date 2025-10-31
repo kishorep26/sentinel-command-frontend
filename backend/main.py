@@ -7,9 +7,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
 
 from database import (
-    get_engine,            # use this for engine startup
-    get_session_maker,     # proper session_maker access for startup/session creation
-    get_async_session,     # use this for FastAPI dependencies
+    get_engine,          # Use this to get the engine instance
+    get_session_maker,   # Use for direct session creation on startup
+    get_async_session,   # Use for FastAPI per-request DB session
     Base,
     IncidentDB,
     AgentDB,
@@ -66,11 +66,9 @@ class StatsOut(BaseModel):
 # --------- TABLES ON STARTUP ---------
 @app.on_event("startup")
 async def on_startup():
-    # Create tables
     engine = get_engine()
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    # Optionally, add default agents if not present
     session_maker = get_session_maker()
     async with session_maker() as db:
         agents_count = (await db.execute(select(AgentDB))).scalars().all()
