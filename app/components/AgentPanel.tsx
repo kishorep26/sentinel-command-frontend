@@ -27,12 +27,12 @@ export default function AgentPanel() {
         const data = await response.json();
         setAgents(data);
       } catch (error) {
-        console.error('Error fetching agents:', error);
+        setAgents([]);
       }
     };
 
     fetchAgents();
-    const interval = setInterval(fetchAgents, 4000);
+    const interval = setInterval(fetchAgents, 3500);
     return () => clearInterval(interval);
   }, []);
 
@@ -49,44 +49,53 @@ export default function AgentPanel() {
       <h2 className="text-2xl font-black text-white mb-6 flex items-center gap-2">
         🤖 All Agents ({agents.length})
       </h2>
+
       <div className="space-y-4 max-h-[400px] overflow-y-auto custom-scrollbar">
         {agents.length === 0 ? (
           <div className="text-center text-gray-400 py-8">No registered agents</div>
         ) : (
-          agents.map((agent) => (
+          agents.map(agent => (
             <div
               key={agent.id}
-              className="group bg-slate-700/30 hover:bg-slate-700/50 border border-white/10 rounded-xl p-5 transition-all hover:shadow-xl"
+              className={`group bg-slate-700/30 hover:bg-slate-700/50 border border-white/10 rounded-xl p-5 transition-all hover:shadow-xl ${
+                agent.status.toLowerCase() === 'responding' ? 'border-yellow-500/70' : ''
+              }`}
             >
               <div className="flex items-start gap-4 mb-4">
                 <div className="text-4xl">{agent.icon}</div>
                 <div className="flex-1">
                   <div className="flex items-start justify-between mb-2">
-                    <h3 className="text-white font-bold text-lg">{agent.name}</h3>
+                    <div>
+                      <h3 className="text-white font-bold text-lg">{agent.name}</h3>
+                      {agent.current_incident ? (
+                        <p className="text-blue-300 text-xs">
+                          Responding to Incident <b>#{agent.current_incident}</b>
+                        </p>
+                      ) : (
+                        <p className="text-gray-400 text-xs">Idle</p>
+                      )}
+                    </div>
                     <span className={`px-3 py-1 ${getStatusColor(agent.status)} rounded-full text-xs font-bold border`}>
                       {agent.status}
                     </span>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    {agent.current_incident &&
-                      <span className="text-blue-300 text-sm">🎯 Incident: {agent.current_incident}</span>
-                    }
-                    <span className="text-purple-400 text-xs">Efficiency: <b className="text-white">{agent.efficiency}%</b></span>
-                    <span className="text-cyan-400 text-xs">Responses: <b className="text-white">{agent.total_responses}</b></span>
-                    <span className="text-green-300 text-xs">Success: <b className="text-white">{agent.successful_responses}</b></span>
-                    {agent.response_time > 0 &&
-                      <span className="text-yellow-200 text-xs">Resp.: <b className="text-white">{agent.response_time?.toFixed(2)}</b>km</span>
-                    }
-                    {agent.updated_at &&
-                      <span className="text-gray-400 text-xs">Last: {new Date(agent.updated_at).toLocaleTimeString()}</span>
-                    }
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
+                    <span className="text-purple-400">Efficiency: <b className="text-white">{agent.efficiency ?? "--"}%</b></span>
+                    <span className="text-cyan-400">Responses: <b className="text-white">{agent.total_responses ?? "--"}</b></span>
+                    <span className="text-green-300">Success: <b className="text-white">{agent.successful_responses ?? "--"}</b></span>
+                    <span className="text-yellow-200">Avg Res. Dist: <b className="text-white">{agent.response_time?.toFixed(2)}</b> km</span>
+                    {agent.updated_at && (
+                      <span className="text-gray-400">
+                        Last Update: {new Date(agent.updated_at).toLocaleTimeString()}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
-              <div className="mt-2 text-gray-300 text-xs">
-                <div className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-3">
-                  <div className="text-purple-300 text-xs font-bold mb-1">💡 Decision Log:</div>
-                  <p className="text-gray-200 text-sm leading-relaxed">{agent.decision ?? "--"}</p>
+              <div className="mt-2 text-gray-200">
+                <div className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-3 mb-1">
+                  <div className="text-purple-300 text-xs font-bold mb-1">📝 Last Decision/Action:</div>
+                  <div className="text-gray-100 text-sm">{agent.decision || "--"}</div>
                 </div>
               </div>
             </div>
