@@ -13,6 +13,7 @@ interface Agent {
   efficiency: number;
   total_responses: number;
   successful_responses: number;
+  updated_at?: string;
 }
 
 export default function AgentPanel() {
@@ -31,13 +32,15 @@ export default function AgentPanel() {
     };
 
     fetchAgents();
-    const interval = setInterval(fetchAgents, 3000);
+    const interval = setInterval(fetchAgents, 4000);
     return () => clearInterval(interval);
   }, []);
 
   const getStatusColor = (status: string) => {
+    if (!status) return '';
     if (status.toLowerCase() === 'responding') return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30';
     if (status.toLowerCase() === 'available') return 'bg-green-500/20 text-green-300 border-green-500/30';
+    if (status.toLowerCase() === 'busy') return 'bg-red-500/20 text-red-300 border-red-500/30';
     return 'bg-blue-500/20 text-blue-300 border-blue-500/30';
   };
 
@@ -64,19 +67,27 @@ export default function AgentPanel() {
                       {agent.status}
                     </span>
                   </div>
-                  {agent.current_incident && (
-                    <p className="text-blue-300 text-sm">🎯 Incident: {agent.current_incident}</p>
-                  )}
+                  <div className="flex flex-wrap gap-2">
+                    {agent.current_incident &&
+                      <span className="text-blue-300 text-sm">🎯 Incident: {agent.current_incident}</span>
+                    }
+                    <span className="text-purple-400 text-xs">Efficiency: <b className="text-white">{agent.efficiency}%</b></span>
+                    <span className="text-cyan-400 text-xs">Responses: <b className="text-white">{agent.total_responses}</b></span>
+                    <span className="text-green-300 text-xs">Success: <b className="text-white">{agent.successful_responses}</b></span>
+                    {agent.response_time > 0 &&
+                      <span className="text-yellow-200 text-xs">Resp.: <b className="text-white">{agent.response_time?.toFixed(2)}</b>km</span>
+                    }
+                    {agent.updated_at &&
+                      <span className="text-gray-400 text-xs">Last: {new Date(agent.updated_at).toLocaleTimeString()}</span>
+                    }
+                  </div>
                 </div>
               </div>
-              <div className="mb-3 flex gap-6">
-                <span className="text-xs text-gray-400">Efficiency: <b className="text-white">{agent.efficiency}%</b></span>
-                <span className="text-xs text-gray-400">Responses: <b className="text-white">{agent.total_responses}</b></span>
-                <span className="text-xs text-gray-400">Success: <b className="text-white">{agent.successful_responses}</b></span>
-              </div>
-              <div className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-3">
-                <div className="text-purple-300 text-xs font-bold mb-2">💡 Decision:</div>
-                <p className="text-gray-300 text-sm leading-relaxed">{agent.decision ?? '--'}</p>
+              <div className="mt-2 text-gray-300 text-xs">
+                <div className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-3">
+                  <div className="text-purple-300 text-xs font-bold mb-1">💡 Decision Log:</div>
+                  <p className="text-gray-200 text-sm leading-relaxed">{agent.decision ?? "--"}</p>
+                </div>
               </div>
             </div>
           ))

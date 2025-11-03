@@ -1,65 +1,53 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-interface Agent {
+interface IncidentHistoryEntry {
   id: number;
-  name: string;
-  icon: string;
-  current_incident: string | null;
-  decision: string | null;
+  incident_id: number;
+  agent_id?: number;
+  action: string;
+  detail: string;
+  timestamp: string;
 }
 
 export default function AgentDecisionLog() {
-  const [agents, setAgents] = useState<Agent[]>([]);
+  const [history, setHistory] = useState<IncidentHistoryEntry[]>([]);
 
   useEffect(() => {
-    const fetchAgents = async () => {
+    const fetchHistory = async () => {
       try {
         const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-        const response = await fetch(`${API_URL}/agents`);
-        const data = await response.json();
-        setAgents(data.filter((a: Agent) => a.current_incident));
+        const response = await fetch(`${API_URL}/incident-history`);
+        setHistory(await response.json());
       } catch (error) {
-        console.error('Error fetching agents:', error);
+        setHistory([]);
       }
     };
-
-    fetchAgents();
-    const interval = setInterval(fetchAgents, 3000);
+    fetchHistory();
+    const interval = setInterval(fetchHistory, 4000);
     return () => clearInterval(interval);
   }, []);
 
   return (
     <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur border-2 border-white/10 rounded-2xl p-6 shadow-2xl">
-      <h2 className="text-2xl font-black text-white mb-6">🧠 Decision Log ({agents.length})</h2>
-      <div className="space-y-4 max-h-[400px] overflow-y-auto custom-scrollbar">
-        {agents.length === 0 ? (
-          <div className="text-center text-gray-400 py-8">No active decisions</div>
-        ) : (
-          agents.map((agent, i) => (
-            <div key={agent.id} className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">{agent.icon}</span>
-                  <div>
-                    <h3 className="font-bold text-white">{agent.name}</h3>
-                    <p className="text-xs text-gray-400">Active Response</p>
-                  </div>
-                </div>
+      <h2 className="text-2xl font-black text-white mb-6">🧠 Decision Log ({history.length})</h2>
+      <div className="space-y-2 max-h-96 overflow-y-auto custom-scrollbar">
+        {history.length === 0
+          ? <div className="text-center text-gray-400 py-8">No recent logs</div>
+          : history.map((entry) => (
+            <div key={entry.id} className="bg-slate-900/50 rounded-lg p-3 border border-slate-700">
+              <div className="flex gap-2 items-center mb-1">
+                <span className="font-bold text-blue-300 text-xs">{entry.action}</span>
+                <span className="text-gray-400 text-xs">{new Date(entry.timestamp).toLocaleTimeString()}</span>
+                {!!entry.agent_id && <span className="text-xs text-green-400">Agent {entry.agent_id}</span>}
+                {!!entry.incident_id && <span className="text-xs text-yellow-300">Incident {entry.incident_id}</span>}
               </div>
-              <div className="mb-2">
-                <span className="text-sm text-blue-300 font-bold">Incident:</span>
-                <p className="text-sm text-gray-300">{agent.current_incident}</p>
-              </div>
-              <div className="bg-blue-900/30 p-2 rounded mb-2">
-                <span className="text-sm text-yellow-300 font-bold">Decision:</span>
-                <p className="text-sm text-gray-200">{agent.decision}</p>
-              </div>
+              <div className="text-gray-100 text-xs">{entry.detail}</div>
             </div>
           ))
-        )}
+        }
       </div>
     </div>
-  );
+  )
 }

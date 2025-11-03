@@ -28,71 +28,45 @@ export default function AnalyticsDashboard() {
       try {
         const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
         const response = await fetch(`${API_URL}/stats`);
-        const data = await response.json();
-        setStats(data);
-      } catch (error) {
-        console.error('Error fetching stats:', error);
-      }
+        setStats(await response.json());
+      } catch (error) {}
     };
-
     fetchStats();
-    const interval = setInterval(fetchStats, 3000);
+    const interval = setInterval(fetchStats, 5000);
     return () => clearInterval(interval);
   }, []);
 
   return (
     <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur border-2 border-white/10 rounded-2xl p-6 shadow-2xl">
       <h2 className="text-2xl font-black text-white mb-6">📊 Analytics</h2>
-
-      <div className="space-y-6">
-        <div>
-          <h3 className="text-lg font-bold text-white mb-3">Incident Status</h3>
-          <div className="space-y-3">
-            {[
-              { name: 'Active', count: stats.active_incidents, color: 'from-red-600 to-red-400' },
-              { name: 'Resolved', count: stats.resolved_incidents, color: 'from-green-600 to-green-400' },
-              { name: 'Total', count: stats.total_incidents, color: 'from-blue-600 to-blue-400' }
-            ].map((item) => (
-              <div key={item.name} className="bg-slate-700/50 rounded-lg p-3">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-white font-semibold">{item.name}</span>
-                  <span className="text-green-400 font-bold">{item.count}</span>
-                </div>
-                <div className="w-full bg-slate-700 rounded-full h-2">
-                  <div
-                    className={`bg-gradient-to-r ${item.color} h-2 rounded-full`}
-                    style={{ width: `${(item.count / Math.max(stats.total_incidents, 1)) * 100}%` }}
-                  />
-                </div>
-              </div>
-            ))}
+      <div className="flex flex-col gap-4">
+        <div className="grid grid-cols-2 gap-6">
+          <div className="bg-slate-700/50 rounded-lg p-4 text-center">
+            <div className="text-xs text-blue-300 mb-1">Total Incidents</div>
+            <div className="text-2xl text-blue-200 font-bold">{stats.total_incidents}</div>
           </div>
-        </div>
-
-        <div>
-          <h3 className="text-lg font-bold text-white mb-3">Agent Status</h3>
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { type: 'Total', count: stats.total_agents, emoji: '🤖' },
-              { type: 'Active', count: stats.active_agents, emoji: '⚡' }
-            ].map((item) => (
-              <div key={item.type} className="bg-slate-700/50 rounded-lg p-4 text-center">
-                <div className="text-3xl mb-2">{item.emoji}</div>
-                <div className="text-white font-bold text-2xl">{item.count}</div>
-                <div className="text-xs text-gray-400">{item.type}</div>
-              </div>
-            ))}
+          <div className="bg-slate-700/50 rounded-lg p-4 text-center">
+            <div className="text-xs text-red-300 mb-1">Active Incidents</div>
+            <div className="text-2xl text-red-200 font-bold">{stats.active_incidents}</div>
+          </div>
+          <div className="bg-slate-700/50 rounded-lg p-4 text-center">
+            <div className="text-xs text-green-300 mb-1">Resolved Incidents</div>
+            <div className="text-2xl text-green-200 font-bold">{stats.resolved_incidents}</div>
+          </div>
+          <div className="bg-slate-700/50 rounded-lg p-4 text-center">
+            <div className="text-xs text-yellow-300 mb-1">Active Agents</div>
+            <div className="text-2xl text-yellow-200 font-bold">{stats.active_agents}</div>
           </div>
         </div>
         <div>
-          <div className="flex flex-col md:flex-row items-center gap-4 mt-6">
-            <div className="flex-1">
-              <b className="text-white">Avg Response:</b>
-              <span className="ml-2 text-blue-400">{stats.average_response_time.toFixed(2)} km</span>
+          <div className="flex gap-4 mt-4">
+            <div>
+              <div className="text-xs text-gray-400">Avg Response</div>
+              <div className="text-lg text-blue-300">{stats.average_response_time.toFixed(2)} km</div>
             </div>
-            <div className="flex-1">
-              <b className="text-white">Avg Efficiency:</b>
-              <span className="ml-2 text-green-400">{stats.average_efficiency.toFixed(1)}%</span>
+            <div>
+              <div className="text-xs text-gray-400">Avg Efficiency</div>
+              <div className="text-lg text-green-300">{stats.average_efficiency.toFixed(2)} %</div>
             </div>
           </div>
         </div>
