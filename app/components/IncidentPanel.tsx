@@ -119,9 +119,6 @@ export default function IncidentPanel() {
           ))
         )}
       </div>
-      <button className="w-full mt-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 rounded-xl transition shadow-lg">
-        + View All
-      </button>
     </div>
   );
 }

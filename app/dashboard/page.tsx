@@ -9,7 +9,6 @@ import AgentPanel from '../components/AgentPanel';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import AgentDecisionLog from '../components/AgentDecisionLog';
 import ScenarioEditor from '../components/ScenarioEditor';
-import IncidentClassifier from '../components/IncidentClassifier';
 
 export default function Dashboard() {
   return (
@@ -39,13 +38,6 @@ export default function Dashboard() {
           <AgentDecisionLog />
           <AnalyticsDashboard />
         </div>
-
-        {/* AI Classifier (optional) */}
-        {
-        <div>
-          <IncidentClassifier />
-        </div>
-        }
 
         {/* Scenario/Simulation Control */}
         <ScenarioEditor />
