@@ -129,13 +129,13 @@ export default function ScenarioEditor({ refreshAction }: { refreshAction?: () =
       setFormData({ type: 'fire', address: '', lat: 40.7128, lon: -74.0060, description: '' });
       setSelectedLocation(null);
 
-      // Call the action - note the name change
       if (refreshAction) {
         refreshAction();
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating incident:', error);
-      alert('Error creating incident. Check console logs.');
+      // Show the actual error message to the user
+      alert(`Failed to create incident: ${error.message || 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
