@@ -6,8 +6,8 @@ export default function CommandHeader() {
     const [stats, setStats] = useState({
         active_incidents: 0,
         active_agents: 0,
-        total_agents: 6,
-        threat_level: 'LOW'
+        total_agents: 0,
+        threat_level: 'ANALYZING...'
     });
 
     useEffect(() => {
@@ -25,7 +25,7 @@ export default function CommandHeader() {
                 setStats({
                     active_incidents: data.active_incidents,
                     active_agents: data.active_agents || 0,
-                    total_agents: data.total_agents || 6,
+                    total_agents: data.total_agents || 0,
                     threat_level: level
                 });
             } catch (error) { }

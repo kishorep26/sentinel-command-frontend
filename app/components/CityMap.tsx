@@ -51,25 +51,40 @@ interface Incident {
   status: string;
 }
 
+// ... imports ...
+
 export default function CityMap() {
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [riskZones, setRiskZones] = useState<any[]>([]);
   const [showRisk, setShowRisk] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [mapCenter, setMapCenter] = useState<[number, number]>([40.7128, -74.0060]); // Default fallback
 
   useEffect(() => {
     setIsMounted(true);
-    fetchIncidents();
-    const interval = setInterval(fetchIncidents, 3000);
+    fetchData();
+    const interval = setInterval(fetchData, 3000);
     return () => clearInterval(interval);
   }, []);
 
-  const fetchIncidents = async () => {
+  const fetchData = async () => {
     try {
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-      const response = await fetch(`${API_URL}/incidents`);
-      const data = await response.json();
-      setIncidents(data.filter((i: Incident) => i.status !== 'resolved'));
+
+      // Fetch Incidents
+      const incRes = await fetch(`${API_URL}/incidents`);
+      const incData = await incRes.json();
+      const activeIncidents = incData.filter((i: Incident) => i.status !== 'resolved');
+      setIncidents(activeIncidents);
+
+      // If no incidents, center on fleet
+      if (activeIncidents.length === 0) {
+        const agentsRes = await fetch(`${API_URL}/agents`);
+        const agentsData = await agentsRes.json();
+        if (agentsData.length > 0) {
+          setMapCenter([agentsData[0].lat, agentsData[0].lon]);
+        }
+      }
     } catch (error) { console.error(error); }
   };
 
@@ -100,23 +115,23 @@ export default function CityMap() {
     return <div className="h-[500px] w-full bg-slate-800 rounded-2xl animate-pulse"></div>;
   }
 
-  // Default view (NYC)
-  const defaultCenter = [40.7128, -74.0060];
+  // Default view is now dynamic mapCenter state
 
   return (
     <div className="h-full w-full relative z-10">
-      <div className="absolute top-4 left-4 z-[400]">
+      <div className="absolute top-5 right-12 z-[9999]">
         <button
           onClick={toggleRiskZones}
-          className={`px-4 py-2 rounded-lg font-bold text-xs border transition-all ${showRisk ? 'bg-red-500/80 text-white border-red-500' : 'bg-slate-900/80 text-gray-400 border-white/10 hover:text-white'}`}
+          className={`px-6 py-3 rounded-xl font-black text-xs border-2 shadow-2xl transition-all transform hover:scale-105 active:scale-95 flex items-center gap-2 ${showRisk ? 'bg-red-600 text-white border-red-400 shadow-red-600/50' : 'bg-slate-900/90 backdrop-blur text-blue-400 border-blue-500/30 hover:border-blue-400 hover:text-white shadow-blue-500/20'}`}
         >
-          {showRisk ? 'HIDE PREDICTIVE MODEL' : 'SHOW RISK ZONES (ML)'}
+          <span className="text-lg">{showRisk ? '🚫' : '🧠'}</span>
+          {showRisk ? 'DISABLE NEURAL PREDICTION' : 'ACTIVATE PREDICTIVE MODEL'}
         </button>
       </div>
 
       <FixLeafletIcon />
       <MapContainer
-        center={defaultCenter as any}
+        center={mapCenter as any}
         zoom={12}
         style={{ height: '100%', width: '100%' }}
       >
