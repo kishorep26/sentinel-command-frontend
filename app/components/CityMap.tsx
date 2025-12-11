@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
+import 'leaflet/dist/leaflet.css';
+import { BrainCircuit, EyeOff } from 'lucide-react';
 
 // Dynamically import Leaflet components with SSR disabled
 const MapContainer = dynamic(
@@ -119,13 +121,13 @@ export default function CityMap() {
 
   return (
     <div className="h-full w-full relative z-10">
-      <div className="absolute top-5 right-12 z-[9999]">
+      <div className="absolute bottom-10 right-10 z-[800]">
         <button
           onClick={toggleRiskZones}
-          className={`px-6 py-3 rounded-xl font-black text-xs border-2 shadow-2xl transition-all transform hover:scale-105 active:scale-95 flex items-center gap-2 ${showRisk ? 'bg-red-600 text-white border-red-400 shadow-red-600/50' : 'bg-slate-900/90 backdrop-blur text-blue-400 border-blue-500/30 hover:border-blue-400 hover:text-white shadow-blue-500/20'}`}
+          className={`px-6 py-4 rounded-full font-bold text-xs border border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.5)] transition-all transform hover:scale-105 active:scale-95 flex items-center gap-3 backdrop-blur-xl ${showRisk ? 'bg-red-500/90 text-white border-red-400' : 'bg-slate-900/90 text-blue-400 border-blue-500/30 hover:border-blue-400 hover:text-white'}`}
         >
-          <span className="text-lg">{showRisk ? '🚫' : '🧠'}</span>
-          {showRisk ? 'DISABLE NEURAL PREDICTION' : 'ACTIVATE PREDICTIVE MODEL'}
+          {showRisk ? <EyeOff className="w-5 h-5" /> : <BrainCircuit className="w-5 h-5" />}
+          <span className="tracking-widest">{showRisk ? 'HIDE NEURAL LAYER' : 'ACTIVATE PREDICTION'}</span>
         </button>
       </div>
 
