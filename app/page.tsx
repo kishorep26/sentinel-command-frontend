@@ -61,10 +61,7 @@ export default function LandingPage() {
             </span>
           </Link>
 
-          <button className="px-8 py-5 border border-white/20 rounded-full text-white font-bold hover:bg-white/5 transition flex items-center gap-2 group">
-            <span>WATCH SIMULATION</span>
-            <Play className="w-4 h-4 fill-current group-hover:translate-x-1 transition-transform" />
-          </button>
+          {/* Simulation button removed as requested */}
         </div>
 
         {/* Feature Grid (Holographic style) */}

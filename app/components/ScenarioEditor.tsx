@@ -15,7 +15,7 @@ export default function ScenarioEditor({ refreshAction }: { refreshAction?: () =
   const [searchResults, setSearchResults] = useState<GeoResult[]>([]);
 
   const [formData, setFormData] = useState({
-    type: 'fire',
+    type: 'auto',
     address: '',
     lat: 40.7128,
     lon: -74.0060,
@@ -172,17 +172,19 @@ export default function ScenarioEditor({ refreshAction }: { refreshAction?: () =
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label className="block text-xs font-bold text-blue-300 uppercase tracking-widest mb-2">
-                  Incident Type
+                  Situation Report (REQUIRED)
                 </label>
-                <select
-                  value={formData.type}
-                  onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                  className="w-full bg-slate-900/80 text-white rounded-xl px-4 py-3 border border-white/10 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 transition-all appearance-none"
-                >
-                  {incidentTypes.map((type) => (
-                    <option key={type.value} value={type.value}>{type.label}</option>
-                  ))}
-                </select>
+                <div className="text-[10px] text-gray-500 mb-2">
+                  Describe the emergency clearly. The AI will analyze the text to classify the incident type (Fire, Medical, Police) and assign appropriate units.
+                </div>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="e.g., 'Large structural fire detected near central plaza', 'Multi-vehicle collision with injuries', 'Armed robbery in progress'..."
+                  rows={3}
+                  className="w-full bg-slate-900/80 text-white rounded-xl px-4 py-3 border border-white/10 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 transition-all resize-none"
+                  required
+                />
               </div>
 
               <div>
@@ -231,18 +233,7 @@ export default function ScenarioEditor({ refreshAction }: { refreshAction?: () =
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-blue-300 uppercase tracking-widest mb-2">
-                  Situation Report (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="e.g., High integrity failure, multiple casualties"
-                  className="w-full bg-slate-900/80 text-white rounded-xl px-4 py-3 border border-white/10 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 transition-all"
-                />
-              </div>
+              {/* Description field moved up to replace Type selector */}
 
               <button
                 type="submit"

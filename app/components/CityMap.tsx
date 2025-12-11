@@ -121,12 +121,12 @@ export default function CityMap() {
 
   return (
     <div className="h-full w-full relative z-10">
-      <div className="absolute bottom-10 right-10 z-[800]">
+      <div className="absolute top-28 left-1/2 -translate-x-1/2 z-[9999]">
         <button
           onClick={toggleRiskZones}
-          className={`px-6 py-4 rounded-full font-bold text-xs border border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.5)] transition-all transform hover:scale-105 active:scale-95 flex items-center gap-3 backdrop-blur-xl ${showRisk ? 'bg-red-500/90 text-white border-red-400' : 'bg-slate-900/90 text-blue-400 border-blue-500/30 hover:border-blue-400 hover:text-white'}`}
+          className={`px-6 py-2 rounded-full font-bold text-xs border shadow-2xl transition-all transform hover:scale-105 active:scale-95 flex items-center gap-3 backdrop-blur-xl ${showRisk ? 'bg-red-500 text-white border-red-400 shadow-[0_0_20px_rgba(239,68,68,0.6)]' : 'bg-slate-950/80 text-blue-400 border-blue-500/30 hover:border-blue-400 hover:text-white hover:bg-slate-900'}`}
         >
-          {showRisk ? <EyeOff className="w-5 h-5" /> : <BrainCircuit className="w-5 h-5" />}
+          {showRisk ? <EyeOff className="w-4 h-4" /> : <BrainCircuit className="w-4 h-4" />}
           <span className="tracking-widest">{showRisk ? 'HIDE NEURAL LAYER' : 'ACTIVATE PREDICTION'}</span>
         </button>
       </div>

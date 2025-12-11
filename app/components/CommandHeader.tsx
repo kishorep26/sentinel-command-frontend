@@ -96,13 +96,23 @@ export default function CommandHeader() {
                 </div>
             </div>
 
+            import Link from 'next/link'; // Add Link import if missing or just use existing next/link
+            import {Activity, AlertTriangle, Shield, Cpu, Clock, Layers, LogOut} from 'lucide-react';
+
+            // ...
+
             {/* Right - Clock / Util */}
             <div className="text-right flex flex-col items-end">
-                <div className="flex items-center gap-3 text-white">
-                    <Clock className="w-4 h-4 text-gray-500" />
-                    <span className="text-2xl font-light font-mono tracking-widest">
-                        {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
+                <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3 text-white">
+                        <Clock className="w-4 h-4 text-gray-500" />
+                        <span className="text-2xl font-light font-mono tracking-widest">
+                            {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                    </div>
+                    <Link href="/" className="p-2 hover:bg-white/10 rounded-full transition-colors group" title="Disconnect System">
+                        <LogOut className="w-5 h-5 text-gray-500 group-hover:text-red-400 transition-colors" />
+                    </Link>
                 </div>
                 <div className="text-[10px] text-gray-600 font-mono mt-1 flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
