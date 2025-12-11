@@ -3,45 +3,50 @@
 import dynamic from 'next/dynamic';
 const CityMap = dynamic(() => import('../components/CityMap'), { ssr: false });
 
-import MetricsPanel from '../components/MetricsPanel';
 import IncidentPanel from '../components/IncidentPanel';
 import AgentPanel from '../components/AgentPanel';
-import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import AgentDecisionLog from '../components/AgentDecisionLog';
 import ScenarioEditor from '../components/ScenarioEditor';
+import CommandHeader from '../components/CommandHeader';
 
 export default function Dashboard() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-950 to-slate-950">
-      <div className="container mx-auto p-6 space-y-6">
-        {/* Top Metrics Panel */}
-        <div>
-          <MetricsPanel />
-        </div>
+    <div className="h-screen w-screen bg-black overflow-hidden relative">
 
-        {/* Main Map UI */}
-        <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur border-2 border-white/10 rounded-2xl p-6 shadow-2xl">
-          <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-            🗺️ Live City Map
-          </h2>
-          <CityMap />
-        </div>
+      {/* 1. Header (HUD Top) */}
+      <CommandHeader />
 
-        {/* Panels Grid: Incidents (left), Agents (right) */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* 2. Map (Background Layer) */}
+      <div className="absolute inset-0 z-0 top-[80px]"> {/* Offset for header */}
+        <CityMap />
+        {/* Map Overlay Vignette for Cyberpunk feel */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.6)_100%)] pointer-events-none z-[1]"></div>
+      </div>
+
+      {/* 3. Floating Panels (HUD Layer) - Z-10 to sit above map but below Modals */}
+      <div className="absolute inset-0 z-10 pointer-events-none top-[90px] p-6 flex justify-between items-start">
+
+        {/* Left: Incident Feed */}
+        <div className="w-[400px] h-[calc(100vh-250px)] pointer-events-auto">
           <IncidentPanel />
+        </div>
+
+        {/* Right: Agent Fleet */}
+        <div className="w-[350px] h-[calc(100vh-250px)] pointer-events-auto">
           <AgentPanel />
         </div>
+      </div>
 
-        {/* Analytics and Decisions */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <AgentDecisionLog />
-          <AnalyticsDashboard />
-        </div>
+      {/* 4. Bottom Console (Neural Log) */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[600px] h-[140px] z-20 pointer-events-auto">
+        <AgentDecisionLog />
+      </div>
 
-        {/* Scenario/Simulation Control */}
+      {/* 5. Controls */}
+      <div className="pointer-events-auto relative z-50">
         <ScenarioEditor />
       </div>
+
     </div>
   );
 }
