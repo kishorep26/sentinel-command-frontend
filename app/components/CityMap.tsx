@@ -90,7 +90,7 @@ export default function CityMap() {
   const defaultCenter = [40.7128, -74.0060];
 
   return (
-    <div className="h-[500px] w-full rounded-2xl overflow-hidden border-2 border-white/10 shadow-2xl relative z-10">
+    <div className="h-full w-full relative z-10">
       <FixLeafletIcon />
       <MapContainer
         center={defaultCenter as L.LatLngExpression}
