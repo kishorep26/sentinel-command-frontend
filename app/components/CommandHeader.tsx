@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react';
-import { Activity, AlertTriangle, Shield, Cpu, Clock, Layers } from 'lucide-react';
+import Link from 'next/link';
+import { Activity, AlertTriangle, Shield, Cpu, Clock, Layers, LogOut } from 'lucide-react';
 
 export default function CommandHeader() {
     const [stats, setStats] = useState({
@@ -95,11 +96,6 @@ export default function CommandHeader() {
                     </div>
                 </div>
             </div>
-
-            import Link from 'next/link'; // Add Link import if missing or just use existing next/link
-            import {Activity, AlertTriangle, Shield, Cpu, Clock, Layers, LogOut} from 'lucide-react';
-
-            // ...
 
             {/* Right - Clock / Util */}
             <div className="text-right flex flex-col items-end">
