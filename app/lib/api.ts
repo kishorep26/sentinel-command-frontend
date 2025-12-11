@@ -44,6 +44,12 @@ export async function classifyIncident(desc: string) {
   return res.json();
 }
 
+export async function getStats() {
+  const res = await fetch(`${API_URL}/stats`, { cache: 'no-store' });
+  if (!res.ok) throw new Error('Failed to fetch stats');
+  return res.json();
+}
+
 export function getUpdatesSocket() {
   // Ensure ws:// not http:// for dev/prod, handle secure as well
   return new WebSocket(API_URL.replace(/^http/, 'ws') + '/ws/updates');

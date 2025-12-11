@@ -1,21 +1,34 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { getUpdatesSocket } from '../lib/api';
+import { getStats } from '../lib/api';
 
 export default function LiveStats() {
-  const [stats, setStats] = useState<{time: string, agents: number}>({time: '', agents: 0});
+  const [stats, setStats] = useState<{ active_incidents: number, resolved_incidents: number } | null>(null);
+  const [time, setTime] = useState('');
+
   useEffect(() => {
-    const ws = getUpdatesSocket();
-    ws.onmessage = (e) => {
-      const msg = JSON.parse(e.data);
-      setStats(msg);
+    const fetchStats = async () => {
+      try {
+        const data = await getStats();
+        setStats(data);
+        setTime(new Date().toLocaleTimeString());
+      } catch (e) {
+        console.error(e);
+      }
     };
-    return () => { ws.close(); };
+
+    fetchStats();
+    const interval = setInterval(fetchStats, 5000);
+    return () => clearInterval(interval);
   }, []);
 
+  if (!stats) return <div className="text-sm">Loading stats...</div>;
+
   return (
-    <div className="bg-green-100 p-2 my-2 rounded text-sm">
-      <span>Live {stats.time ? new Date(stats.time).toLocaleTimeString() : '...'}</span> — <b>{stats.agents}</b> agents tracked
+    <div className="bg-green-100 p-2 my-2 rounded text-sm flex gap-4">
+      <span>🕒 {time}</span>
+      <span>🔥 Active: <b>{stats.active_incidents}</b></span>
+      <span>✅ Resolved: <b>{stats.resolved_incidents}</b></span>
     </div>
   );
 }
