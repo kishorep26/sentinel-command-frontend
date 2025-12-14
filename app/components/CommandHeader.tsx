@@ -108,6 +108,20 @@ export default function CommandHeader() {
                             {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                     </div>
+                    <button
+                        onClick={async () => {
+                            if (!confirm("⚠️ SYSTEM RESET: This will wipe all data and reset to factory state. Continue?")) return;
+                            try {
+                                const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+                                await fetch(`${API_URL}/reset`, { method: 'POST' });
+                                window.location.reload();
+                            } catch (e) { alert("Reset failed: " + e); }
+                        }}
+                        className="p-2 hover:bg-red-500/20 rounded-full transition-colors group mr-2"
+                        title="Hard Reset System"
+                    >
+                        <Layers className="w-5 h-5 text-gray-500 group-hover:text-red-500 transition-colors" />
+                    </button>
                     <Link href="/" className="p-2 hover:bg-white/10 rounded-full transition-colors group" title="Disconnect System">
                         <LogOut className="w-5 h-5 text-gray-500 group-hover:text-red-400 transition-colors" />
                     </Link>
