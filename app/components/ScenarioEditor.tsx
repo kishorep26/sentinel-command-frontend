@@ -197,13 +197,14 @@ export default function ScenarioEditor({ refreshAction }: { refreshAction?: () =
                     value={formData.address}
                     onChange={(e) => {
                       setFormData({ ...formData, address: e.target.value });
+                      setSelectedLocation(null); // Unlock if user edits
                       searchAddress(e.target.value);
                     }}
                     placeholder="Search coordinates..."
                     className="w-full bg-slate-900/80 text-white rounded-xl px-4 py-3 border border-white/10 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 transition-all font-mono text-sm"
                   />
 
-                  {searchResults.length > 0 && (
+                  {searchResults.length > 0 && !selectedLocation && (
                     <div className="absolute top-full left-0 right-0 mt-2 bg-slate-900 border border-white/20 rounded-xl shadow-2xl z-50 max-h-64 overflow-y-auto custom-scrollbar">
                       {searchResults.map((result, idx) => (
                         <button

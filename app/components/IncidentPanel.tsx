@@ -110,10 +110,10 @@ export default function IncidentPanel() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between mb-2">
                     <div className="pr-2">
-                      <h3 className="text-white font-bold text-lg capitalize truncate leading-tight">
+                      <h3 className="text-white font-bold text-lg capitalize whitespace-normal break-words leading-tight">
                         {incident.type}
                       </h3>
-                      <p className="text-gray-300 text-sm mt-0.5 line-clamp-1">{incident.description}</p>
+                      <p className="text-gray-300 text-sm mt-0.5 whitespace-normal break-words">{incident.description}</p>
                     </div>
                     <span className={`px-2 py-0.5 ${getStatusColor(incident.status)} rounded text-[10px] uppercase font-bold border shrink-0`}>
                       {incident.status}

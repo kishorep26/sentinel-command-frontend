@@ -107,7 +107,7 @@ export default function AgentPanel() {
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
-                    <h3 className="text-white font-bold text-lg truncate pr-2">{agent.name}</h3>
+                    <h3 className="text-white font-bold text-lg whitespace-normal break-words pr-2">{agent.name}</h3>
                     <span className={`px-2 py-0.5 ${getStatusColor(agent.status)} rounded text-[10px] uppercase tracking-wider font-bold border`}>
                       {agent.status}
                     </span>
