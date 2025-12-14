@@ -16,13 +16,19 @@ export default function CommandHeader() {
         const fetchStats = async () => {
             try {
                 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-                const response = await fetch(`${API_URL}/stats`);
+                const response = await fetch(`${API_URL}/stats`, {
+                    cache: 'no-store',
+                    headers: {
+                        'Cache-Control': 'no-cache'
+                    }
+                });
                 const data = await response.json();
 
-                // Calculate Threat Level
+                // Calculate Threat Level based on ACTIVE incidents
                 let level = 'LOW';
                 if (data.active_incidents > 5) level = 'CRITICAL';
                 else if (data.active_incidents > 2) level = 'ELEVATED';
+                else if (data.active_incidents === 0) level = 'SECURE';
 
                 setStats({
                     active_incidents: data.active_incidents,
@@ -30,7 +36,9 @@ export default function CommandHeader() {
                     total_agents: data.total_agents || 0,
                     threat_level: level
                 });
-            } catch (error) { }
+            } catch (error) {
+                console.error('Error fetching stats:', error);
+            }
         };
         fetchStats();
         const interval = setInterval(fetchStats, 3000);
@@ -41,6 +49,7 @@ export default function CommandHeader() {
         switch (level) {
             case 'CRITICAL': return 'text-red-500 bg-red-500/10 border-red-500/50 animate-pulse';
             case 'ELEVATED': return 'text-orange-400 bg-orange-400/10 border-orange-400/50';
+            case 'SECURE': return 'text-emerald-500 bg-emerald-500/10 border-emerald-500/50';
             default: return 'text-emerald-400 bg-emerald-400/10 border-emerald-400/50';
         }
     };
@@ -57,7 +66,7 @@ export default function CommandHeader() {
                     <h1 className="text-white font-black text-2xl tracking-[0.25em] font-mono">SENTINEL<span className="text-amber-500">.V4</span></h1>
                     <div className="flex items-center gap-2">
                         <Activity className="w-3 h-3 text-amber-500 animate-pulse" />
-                        <span className="text-[10px] text-amber-500/80 font-mono tracking-widest uppercase">GOTHAM NETWORK ONLINE</span>
+                        <span className="text-[10px] text-amber-500/80 font-mono tracking-widest uppercase">NETWORK ONLINE</span>
                     </div>
                 </div>
             </div>

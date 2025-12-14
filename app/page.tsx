@@ -89,7 +89,7 @@ export default function LandingPage() {
         <div className="mt-32 w-full flex justify-between items-end text-[10px] text-slate-700 font-mono tracking-widest uppercase">
           <div>
             SECURE CONNECTION ESTABLISHED<br />
-            NODE: GOTHAM-CENTRAL-01
+            NODE: CENTRAL-01
           </div>
           <div className="text-right">
             (C) 2025 SENTINEL SYSTEMS<br />
