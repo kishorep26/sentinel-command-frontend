@@ -37,13 +37,13 @@ export default function LandingPage() {
         </div>
 
         <h1 className="text-7xl md:text-9xl font-black mb-8 tracking-tighter text-white leading-[0.85] opacity-90">
-          GOTHAM<br />
-          <span className="text-slate-800 text-stroke-white">OVERWATCH</span>
+          SENTINEL<br />
+          <span className="text-slate-800 text-stroke-white">COMMAND</span>
         </h1>
 
         <p className="text-2xl text-slate-500 max-w-2xl mb-16 font-light leading-relaxed border-l border-slate-800 pl-6">
           Advanced city-wide surveillance and autonomous dispatch grid.
-          <br />Maintained by <span className="text-slate-300 font-bold tracking-widest uppercase">Wayne Enterprises</span>.
+          <br />Intelligent emergency response coordination powered by <span className="text-slate-300 font-bold tracking-widest uppercase">Neural Networks</span>.
         </p>
 
         <div className="flex flex-col md:flex-row gap-6 items-center">
@@ -92,7 +92,7 @@ export default function LandingPage() {
             NODE: GOTHAM-CENTRAL-01
           </div>
           <div className="text-right">
-            (C) 2025 WAYNE ENTERPRISES<br />
+            (C) 2025 SENTINEL SYSTEMS<br />
             MILITARY GRADE ENCRYPTION
           </div>
         </div>

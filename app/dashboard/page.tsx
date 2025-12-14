@@ -11,7 +11,7 @@ import CommandHeader from '../components/CommandHeader';
 
 export default function Dashboard() {
   return (
-    <div className="h-screen w-screen bg-black overflow-hidden relative">
+    <div className="h-screen w-screen bg-[#02040a] overflow-hidden relative">
 
       {/* 1. Header (HUD Top) */}
       <CommandHeader />
@@ -19,8 +19,8 @@ export default function Dashboard() {
       {/* 2. Map (Background Layer) */}
       <div className="absolute inset-0 z-0 top-[80px]"> {/* Offset for header */}
         <CityMap />
-        {/* Map Overlay Vignette for Cyberpunk feel */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.6)_100%)] pointer-events-none z-[1]"></div>
+        {/* Noir Vignette */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.8)_100%)] pointer-events-none z-[1]"></div>
       </div>
 
       {/* 3. Floating Panels (HUD Layer) - Z-10 to sit above map but below Modals */}

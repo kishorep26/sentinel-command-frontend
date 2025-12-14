@@ -75,14 +75,14 @@ export default function IncidentPanel() {
   const activeIncidents = incidents.filter(i => i.status !== 'resolved');
 
   return (
-    <div className="glass-panel rounded-2xl p-6 shadow-2xl h-full flex flex-col">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-black text-white flex items-center gap-3">
+    <div className="glass-panel rounded-sm p-6 shadow-2xl h-full flex flex-col border border-slate-800/50">
+      <div className="flex items-center justify-between mb-6 border-b border-slate-800 pb-4">
+        <h2 className="text-xl font-bold text-slate-200 flex items-center gap-3 tracking-wider uppercase">
           <div className="relative">
-            <Siren className="w-6 h-6 text-red-500" />
+            <Siren className="w-5 h-5 text-amber-600" />
             <span className="absolute -top-1 -right-1 flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-600"></span>
             </span>
           </div>
           Active Incidents ({activeIncidents.length})
@@ -91,10 +91,10 @@ export default function IncidentPanel() {
 
       <div className="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-2">
         {activeIncidents.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-40 text-gray-500">
-            <CheckCircle2 className="w-12 h-12 mb-2 text-emerald-500/50" />
+          <div className="flex flex-col items-center justify-center h-40 text-slate-600">
+            <CheckCircle2 className="w-12 h-12 mb-2 text-emerald-900/50" />
             <div className="font-bold text-lg">No Active Threats</div>
-            <div className="text-xs mt-1 text-emerald-400/70 font-mono">SECTOR SECURE</div>
+            <div className="text-xs mt-1 text-emerald-900/70 font-mono">SECTOR SECURE</div>
           </div>
         ) : (
           activeIncidents.map((incident) => (

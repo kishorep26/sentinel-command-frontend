@@ -73,14 +73,14 @@ export default function AgentPanel() {
   };
 
   return (
-    <div className="glass-panel rounded-2xl p-6 shadow-2xl h-full flex flex-col">
-      <h2 className="text-2xl font-black text-white mb-6 flex items-center gap-3">
-        <Radio className="w-6 h-6 text-blue-400 animate-pulse" /> Active Agents ({agents.length})
+    <div className="glass-panel rounded-sm p-6 shadow-2xl h-full flex flex-col border border-slate-800/50">
+      <h2 className="text-xl font-bold text-slate-200 mb-6 flex items-center gap-3 tracking-wider uppercase border-b border-slate-800 pb-4">
+        <Radio className="w-5 h-5 text-amber-600 animate-pulse" /> Active Agents ({agents.length})
       </h2>
 
       <div className="space-y-4 overflow-y-auto custom-scrollbar flex-1 pr-2">
         {agents.length === 0 ? (
-          <div className="text-center text-gray-400 py-8 animate-pulse flex flex-col items-center">
+          <div className="text-center text-slate-600 py-8 animate-pulse flex flex-col items-center">
             <Radio className="w-8 h-8 mb-2 opacity-50" />
             Scanning Agent Network...
           </div>
