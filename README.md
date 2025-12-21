@@ -1,7 +1,7 @@
-# CORTEX.AI - Smart City Operating System
+# Sentinel Command - Emergency Response System
 
 ## 🏙️ Project Overview
-CORTEX.AI is an autonomous **Multi-Agent Reinforcement Learning (MARL)** system designed to manage emergency response fleets in a smart city environment. It replaces traditional, manual dispatch systems with a neural network that makes real-time decisions based on agent stress, fuel levels, proximity, and incident severity.
+Sentinel Command is an autonomous **Multi-Agent Reinforcement Learning (MARL)** system designed to manage emergency response fleets in a smart city environment. It replaces traditional, manual dispatch systems with a neural network that makes real-time decisions based on agent stress, fuel levels, proximity, and incident severity.
 
 ## 🧠 Key Features
 
@@ -23,7 +23,7 @@ Agents are simulated as stateful entities with:
 - **Self-Preservation**: Agents will refuse missions if they are critically low on resources, forcing the system to find alternatives.
 
 ### 3. **Dynamic Sector Deployment**
-Unlike static grids, CORTEX auto-scales. If an incident is detected in a new geohash sector (e.g., London instead of NYC), the system automatically provisions a local task force effectively creating a global safety net.
+Unlike static grids, Sentinel Command auto-scales. If an incident is detected in a new geohash sector (e.g., London instead of NYC), the system automatically provisions a local task force effectively creating a global safety net.
 
 ### 4. **Predictive Analytics (K-Means)**
 The `ACTIVATE PREDICTION` layer uses an unsupervised **custom K-Means algorithm** to analyze historical incident density. It draws "Risk Zones" on the map, helping commanders pre-position units in high-probability areas.
@@ -37,13 +37,13 @@ The `ACTIVATE PREDICTION` layer uses an unsupervised **custom K-Means algorithm*
 ## 🚀 How to Run
 1. **Frontend**:
    ```bash
-   cd smart-city
+   cd sentinel-command-frontend
    npm install
    npm run dev
    ```
 2. **Backend**:
    ```bash
-   cd smart-city-backend
+   cd sentinel-command-backend
    pip install -r requirements.txt
    uvicorn main:app --reload
    ```
@@ -56,4 +56,4 @@ This project demonstrates Master's level competency in:
 - Real-time State Management
 
 ---
-*(C) 2025 Kishore Prashanth - CORTEX SYSTEMS*
+*(C) 2025 Kishore Prashanth - Sentinel Command*

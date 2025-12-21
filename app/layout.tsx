@@ -2,8 +2,8 @@ import './globals.css'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Smart City AI',
-  description: 'Multi-Agent Emergency Response',
+  title: 'Sentinel Command',
+  description: 'Multi-Agent Emergency Response System',
 }
 
 export default function RootLayout({
