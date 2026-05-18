@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Activity, AlertTriangle, Shield, Clock, Layers, LogOut, Wifi, WifiOff } from 'lucide-react'
+import { Activity, AlertTriangle, Shield, Clock, Layers, LogOut, Wifi, WifiOff, GraduationCap } from 'lucide-react'
 import { toast } from 'sonner'
 import { useSentinel } from '@/app/store/sentinel'
 import { api } from '@/app/lib/api'
@@ -121,6 +121,13 @@ export default function CommandHeader() {
               {clock || '--:--'}
             </span>
           </div>
+          <Link
+            href="/training"
+            className="p-2 hover:bg-amber-500/10 rounded-sm transition-colors group border border-transparent hover:border-amber-500/30"
+            title="Training Simulator"
+          >
+            <GraduationCap className="w-5 h-5 text-slate-600 group-hover:text-amber-400 transition-colors" />
+          </Link>
           <button
             onClick={handleReset}
             disabled={isResetting}
