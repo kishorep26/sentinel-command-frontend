@@ -1,123 +1,73 @@
 'use client'
 
-import { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
-import 'leaflet/dist/leaflet.css';
-import { BrainCircuit, EyeOff } from 'lucide-react';
+import { useEffect, useState } from 'react'
+import dynamic from 'next/dynamic'
+import 'leaflet/dist/leaflet.css'
+import { BrainCircuit, EyeOff } from 'lucide-react'
+import { useSentinel } from '@/app/store/sentinel'
+import { api } from '@/app/lib/api'
+import type { RiskZone } from '@/app/types'
 
-// Dynamically import Leaflet components with SSR disabled
-const MapContainer = dynamic(
-  () => import('react-leaflet').then((mod) => mod.MapContainer),
-  { ssr: false }
-);
-const TileLayer = dynamic(
-  () => import('react-leaflet').then((mod) => mod.TileLayer),
-  { ssr: false }
-);
-const Marker = dynamic(
-  () => import('react-leaflet').then((mod) => mod.Marker),
-  { ssr: false }
-);
-const Popup = dynamic(
-  () => import('react-leaflet').then((mod) => mod.Popup),
-  { ssr: false }
-);
-const Circle = dynamic(
-  () => import('react-leaflet').then((mod) => mod.Circle),
-  { ssr: false }
-);
+const MapContainer = dynamic(() => import('react-leaflet').then((m) => m.MapContainer), { ssr: false })
+const TileLayer = dynamic(() => import('react-leaflet').then((m) => m.TileLayer), { ssr: false })
+const Marker = dynamic(() => import('react-leaflet').then((m) => m.Marker), { ssr: false })
+const Popup = dynamic(() => import('react-leaflet').then((m) => m.Popup), { ssr: false })
+const Circle = dynamic(() => import('react-leaflet').then((m) => m.Circle), { ssr: false })
+const MapController = dynamic(() => import('./MapController'), { ssr: false })
 
-// Dynamic import for the controller that uses useMap hook
-const MapController = dynamic(() => import('./MapController'), { ssr: false });
-
-// Leaflet icon fix needs to run only on client
 const FixLeafletIcon = () => {
   useEffect(() => {
     import('leaflet').then((L) => {
-      delete (L.default.Icon.Default.prototype as any)._getIconUrl;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      delete (L.default.Icon.Default.prototype as any)._getIconUrl
       L.default.Icon.Default.mergeOptions({
         iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
         iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
         shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-      });
-    });
-  }, []);
-  return null;
-};
-
-interface Incident {
-  id: number;
-  type: string;
-  location: { lat: number; lon: number };
-  description: string;
-  status: string;
+      })
+    })
+  }, [])
+  return null
 }
 
-// ... imports ...
+const MARKER_COLORS: Record<string, string> = {
+  fire: '#ef4444',
+  accident: '#f59e0b',
+  medical: '#3b82f6',
+}
 
 export default function CityMap() {
-  const [incidents, setIncidents] = useState<Incident[]>([]);
-  const [riskZones, setRiskZones] = useState<any[]>([]);
-  const [showRisk, setShowRisk] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
-  const [mapCenter, setMapCenter] = useState<[number, number]>([40.7128, -74.0060]); // Default fallback
+  const incidents = useSentinel((s) => s.incidents)
+  const agents = useSentinel((s) => s.agents)
+  const [riskZones, setRiskZones] = useState<RiskZone[]>([])
+  const [showRisk, setShowRisk] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
 
-  useEffect(() => {
-    setIsMounted(true);
-    fetchData();
-    const interval = setInterval(fetchData, 3000);
-    return () => clearInterval(interval);
-  }, []);
+  useEffect(() => { setIsMounted(true) }, [])
 
-  const fetchData = async () => {
-    try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  const activeIncidents = incidents.filter((i) => i.status !== 'resolved')
 
-      // Fetch Incidents
-      const incRes = await fetch(`${API_URL}/incidents`);
-      const incData = await incRes.json();
-      const activeIncidents = incData.filter((i: Incident) => i.status !== 'resolved');
-      setIncidents(activeIncidents);
-
-      // If no incidents, center on fleet
-      if (activeIncidents.length === 0) {
-        const agentsRes = await fetch(`${API_URL}/agents`);
-        const agentsData = await agentsRes.json();
-        if (agentsData.length > 0) {
-          setMapCenter([agentsData[0].lat, agentsData[0].lon]);
-        }
-      }
-    } catch (error) { console.error(error); }
-  };
+  const mapCenter: [number, number] = activeIncidents.length > 0
+    ? [activeIncidents[0].location.lat, activeIncidents[0].location.lon]
+    : agents.length > 0
+    ? [agents[0].lat, agents[0].lon]
+    : [40.7128, -74.006]
 
   const toggleRiskZones = async () => {
-    if (!showRisk) {
+    if (!showRisk && riskZones.length === 0) {
       try {
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-        const response = await fetch(`${API_URL}/analytics/prediction`);
-        const data = await response.json();
-        if (data.status === 'success') {
-          setRiskZones(data.zones);
-        }
-      } catch (e) { console.error(e); }
+        const data = await api.analytics.prediction()
+        if (data.status === 'success') setRiskZones(data.zones)
+      } catch (e) {
+        console.error(e)
+      }
     }
-    setShowRisk(!showRisk);
+    setShowRisk((v) => !v)
   }
-
-  const getMarkerColor = (type: string) => {
-    switch (type) {
-      case 'fire': return '#ef4444';
-      case 'accident': return '#f59e0b';
-      case 'medical': return '#3b82f6';
-      default: return '#6b7280';
-    }
-  };
 
   if (!isMounted) {
-    return <div className="h-[500px] w-full bg-slate-800 rounded-2xl animate-pulse"></div>;
+    return <div className="h-[500px] w-full bg-slate-800 rounded-2xl animate-pulse" />
   }
-
-  // Default view is now dynamic mapCenter state
 
   return (
     <div className="h-full w-full relative z-10">
@@ -132,63 +82,50 @@ export default function CityMap() {
       </div>
 
       <FixLeafletIcon />
-      <MapContainer
-        center={mapCenter as any}
-        zoom={12}
-        style={{ height: '100%', width: '100%' }}
-      >
+      <MapContainer center={mapCenter} zoom={12} style={{ height: '100%', width: '100%' }}>
         <TileLayer
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          attribution='&copy; OpenStreetMap contributors &copy; CARTO'
         />
+        <MapController incidents={activeIncidents} />
 
-        <MapController incidents={incidents} />
-
-        {/* Risk Zones Overlay */}
         {showRisk && riskZones.map((zone) => (
           <Circle
             key={`zone-${zone.id}`}
             center={[zone.lat, zone.lon]}
             radius={zone.radius}
-            pathOptions={{
-              color: '#ef4444',
-              fillColor: '#ef4444',
-              fillOpacity: 0.15,
-              dashArray: '10, 10'
-            }}
+            pathOptions={{ color: '#ef4444', fillColor: '#ef4444', fillOpacity: 0.15, dashArray: '10, 10' }}
           >
             <Popup>
               <div className="text-xs font-bold text-red-600">
-                ⚠️ {zone.label}<br />
-                Risk Score: {(zone.risk_score * 100).toFixed(1)}%
+                ⚠️ {zone.label}<br />Risk Score: {(zone.risk_score * 100).toFixed(1)}%
               </div>
             </Popup>
           </Circle>
         ))}
 
-        {incidents.map((incident) => (
-          <div key={incident.id}>
-            <Circle
-              center={[incident.location.lat, incident.location.lon]}
-              radius={300}
-              pathOptions={{
-                color: getMarkerColor(incident.type),
-                fillColor: getMarkerColor(incident.type),
-                fillOpacity: 0.2
-              }}
-            />
-            <Marker position={[incident.location.lat, incident.location.lon]}>
-              <Popup>
-                <div className="text-sm">
-                  <h3 className="font-bold">{incident.type.toUpperCase()}</h3>
-                  <p>{incident.description}</p>
-                  <p className="text-xs text-gray-600">Status: {incident.status}</p>
-                </div>
-              </Popup>
-            </Marker>
-          </div>
-        ))}
+        {activeIncidents.map((incident) => {
+          const color = MARKER_COLORS[incident.type] ?? '#6b7280'
+          return (
+            <div key={incident.id}>
+              <Circle
+                center={[incident.location.lat, incident.location.lon]}
+                radius={300}
+                pathOptions={{ color, fillColor: color, fillOpacity: 0.2 }}
+              />
+              <Marker position={[incident.location.lat, incident.location.lon]}>
+                <Popup>
+                  <div className="text-sm">
+                    <h3 className="font-bold">{incident.type.toUpperCase()}</h3>
+                    <p>{incident.description}</p>
+                    <p className="text-xs text-gray-600">Status: {incident.status}</p>
+                  </div>
+                </Popup>
+              </Marker>
+            </div>
+          )
+        })}
       </MapContainer>
     </div>
-  );
+  )
 }

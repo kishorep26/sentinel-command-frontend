@@ -1,79 +1,51 @@
 'use client'
 
-import { useState, useEffect } from 'react';
-import { Flame, Car, HeartPulse, Siren, AlertTriangle, BellOff, CheckCircle2 } from 'lucide-react';
+import { useState } from 'react'
+import { Flame, Car, HeartPulse, Siren, AlertTriangle, CheckCircle2 } from 'lucide-react'
+import { toast } from 'sonner'
+import { useSentinel } from '@/app/store/sentinel'
+import { api } from '@/app/lib/api'
 
-interface Incident {
-  id: number;
-  type: string;
-  location: { lat: number; lon: number };
-  description: string;
-  status: string;
-  timestamp: string;
+function getStatusColor(status: string): string {
+  switch (status) {
+    case 'active': return 'bg-red-500/20 text-red-300 border-red-500/30'
+    case 'responding': return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30'
+    case 'dispatched': return 'bg-blue-500/20 text-blue-300 border-blue-500/30'
+    case 'resolved': return 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+    default: return 'bg-gray-500/20 text-gray-300 border-gray-500/30'
+  }
+}
+
+function IncidentIcon({ type }: { type: string }) {
+  switch (type) {
+    case 'fire': return <Flame className="w-8 h-8 text-orange-600" />
+    case 'accident': return <Car className="w-8 h-8 text-yellow-600" />
+    case 'medical': return <HeartPulse className="w-8 h-8 text-pink-600" />
+    case 'crime': return <Siren className="w-8 h-8 text-red-600" />
+    case 'police': return <Siren className="w-8 h-8 text-blue-600" />
+    default: return <AlertTriangle className="w-8 h-8 text-slate-500" />
+  }
 }
 
 export default function IncidentPanel() {
-  const [incidents, setIncidents] = useState<Incident[]>([]);
-  const [resolving, setResolving] = useState<number | null>(null);
+  const incidents = useSentinel((s) => s.incidents)
+  const refresh = useSentinel((s) => s.refresh)
+  const [resolving, setResolving] = useState<number | null>(null)
 
-  useEffect(() => {
-    fetchIncidents();
-    const interval = setInterval(fetchIncidents, 3000);
-    return () => clearInterval(interval);
-  }, []);
+  const activeIncidents = incidents.filter((i) => i.status !== 'resolved')
 
-  const fetchIncidents = async () => {
+  const resolveIncident = async (id: number) => {
+    setResolving(id)
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-      const response = await fetch(`${API_URL}/incidents`);
-      const data = await response.json();
-      setIncidents(data);
-    } catch (error) {
-      console.error('Error fetching incidents:', error);
-    }
-  };
-
-  const resolveIncident = async (incidentId: number) => {
-    setResolving(incidentId);
-    try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-      const response = await fetch(`${API_URL}/incidents/${incidentId}/resolve`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' }
-      });
-
-      if (response.ok) {
-        await fetchIncidents();
-      }
-    } catch (error) {
-      console.error('Error resolving incident:', error);
+      await api.incidents.resolve(id)
+      await refresh()
+      toast.success(`Incident #${id} resolved`, { description: 'Unit returning to patrol' })
+    } catch (e) {
+      toast.error('Failed to resolve incident', { description: String(e) })
     } finally {
-      setResolving(null);
+      setResolving(null)
     }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-red-500/20 text-red-300 border-red-500/30';
-      case 'responding': return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30';
-      case 'dispatched': return 'bg-blue-500/20 text-blue-300 border-blue-500/30';
-      case 'resolved': return 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
-      default: return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
-    }
-  };
-
-  const getIncidentIcon = (type: string) => {
-    switch (type) {
-      case 'fire': return <Flame className="w-8 h-8 text-orange-600" />;
-      case 'accident': return <Car className="w-8 h-8 text-yellow-600" />;
-      case 'medical': return <HeartPulse className="w-8 h-8 text-pink-600" />;
-      case 'crime': return <Siren className="w-8 h-8 text-red-600" />;
-      case 'police': return <Siren className="w-8 h-8 text-blue-600" />;
-      default: return <AlertTriangle className="w-8 h-8 text-slate-500" />;
-    }
-  };
-
-  const activeIncidents = incidents.filter(i => i.status !== 'resolved');
+  }
 
   return (
     <div className="glass-panel rounded-sm p-6 shadow-2xl h-full flex flex-col border border-slate-800/50">
@@ -82,8 +54,8 @@ export default function IncidentPanel() {
           <div className="relative">
             <Siren className="w-5 h-5 text-amber-600" />
             <span className="absolute -top-1 -right-1 flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-600"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-600" />
             </span>
           </div>
           Active Incidents ({activeIncidents.length})
@@ -103,11 +75,12 @@ export default function IncidentPanel() {
               key={incident.id}
               className="group glass-card hover:bg-white/5 rounded-xl p-4 transition-all hover:shadow-lg hover:border-red-500/30 relative overflow-hidden"
             >
-              {/* Warning tape effect on hover */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-5 pointer-events-none bg-[repeating-linear-gradient(45deg,#000,#000_10px,#ecc94b_10px,#ecc94b_20px)]"></div>
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-5 pointer-events-none bg-[repeating-linear-gradient(45deg,#000,#000_10px,#ecc94b_10px,#ecc94b_20px)]" />
 
               <div className="flex items-start gap-4 relative z-10">
-                <div className="p-2 bg-slate-900/50 rounded-lg">{getIncidentIcon(incident.type)}</div>
+                <div className="p-2 bg-slate-900/50 rounded-lg">
+                  <IncidentIcon type={incident.type} />
+                </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between mb-2">
                     <div className="pr-2">
@@ -127,6 +100,7 @@ export default function IncidentPanel() {
                   </div>
                 </div>
               </div>
+
               <button
                 onClick={() => resolveIncident(incident.id)}
                 disabled={resolving === incident.id}
@@ -134,7 +108,7 @@ export default function IncidentPanel() {
               >
                 {resolving === incident.id ? (
                   <>
-                    <span className="w-3 h-3 border-2 border-white/50 border-t-white rounded-full animate-spin"></span>
+                    <span className="w-3 h-3 border-2 border-white/50 border-t-white rounded-full animate-spin" />
                     Processing...
                   </>
                 ) : 'Resolve Situation'}
@@ -144,5 +118,5 @@ export default function IncidentPanel() {
         )}
       </div>
     </div>
-  );
+  )
 }

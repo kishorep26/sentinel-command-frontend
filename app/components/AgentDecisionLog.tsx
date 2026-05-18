@@ -1,36 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react';
-import { Brain } from 'lucide-react';
-
-interface IncidentHistoryEntry {
-  id: number;
-  incident_id: number;
-  agent_id?: number;
-  event_type: string; // Renamed from action to match backend
-  description: string; // Renamed from detail to match backend
-  timestamp: string;
-}
+import { Brain } from 'lucide-react'
+import { useSentinel } from '@/app/store/sentinel'
 
 export default function AgentDecisionLog() {
-  const [history, setHistory] = useState<IncidentHistoryEntry[]>([]);
-
-  useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-        const response = await fetch(`${API_URL}/incident-history`);
-        const data = await response.json();
-        // Ensure array
-        setHistory(Array.isArray(data) ? data : []);
-      } catch (error) {
-        setHistory([]);
-      }
-    };
-    fetchHistory();
-    const interval = setInterval(fetchHistory, 4000);
-    return () => clearInterval(interval);
-  }, []);
+  const history = useSentinel((s) => s.history)
 
   return (
     <div className="glass-panel rounded-sm p-6 shadow-2xl h-full flex flex-col border border-slate-800/50">
@@ -44,12 +18,15 @@ export default function AgentDecisionLog() {
       <div className="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-2 font-mono text-sm">
         {history.length === 0 ? (
           <div className="text-center text-slate-600 py-12 flex flex-col items-center">
-            <div className="animate-spin h-6 w-6 border-2 border-amber-600 border-t-transparent rounded-full mb-3"></div>
+            <div className="animate-spin h-6 w-6 border-2 border-amber-600 border-t-transparent rounded-full mb-3" />
             <div>Awaiting Network Traffic...</div>
           </div>
         ) : (
           history.map((entry) => (
-            <div key={entry.id} className="glass-card p-3 rounded-sm border-l-2 border-amber-600/50 hover:bg-white/5 transition flex gap-3 text-xs">
+            <div
+              key={entry.id}
+              className="glass-card p-3 rounded-sm border-l-2 border-amber-600/50 hover:bg-white/5 transition flex gap-3 text-xs"
+            >
               <div className="text-slate-600 min-w-[60px]">
                 {new Date(entry.timestamp).toLocaleTimeString([], { hour12: false })}
               </div>
@@ -64,9 +41,7 @@ export default function AgentDecisionLog() {
                     {entry.event_type}
                   </span>
                 </div>
-                <div className="text-slate-400 leading-relaxed">
-                  {entry.description}
-                </div>
+                <div className="text-slate-400 leading-relaxed">{entry.description}</div>
               </div>
             </div>
           ))
