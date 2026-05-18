@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Activity, AlertTriangle, Shield, Clock, Layers, LogOut, Wifi, WifiOff, GraduationCap } from 'lucide-react'
+import { UserButton } from '@clerk/nextjs'
+import { Activity, AlertTriangle, Shield, Clock, Layers, Wifi, WifiOff, GraduationCap } from 'lucide-react'
 import { toast } from 'sonner'
 import { useSentinel } from '@/app/store/sentinel'
 import { api } from '@/app/lib/api'
@@ -136,9 +137,7 @@ export default function CommandHeader() {
           >
             <Layers className={`w-5 h-5 text-slate-600 group-hover:text-red-500 transition-colors ${isResetting ? 'animate-spin' : ''}`} />
           </button>
-          <Link href="/" className="p-2 hover:bg-slate-800 rounded-sm transition-colors group" title="Disconnect System">
-            <LogOut className="w-5 h-5 text-slate-600 group-hover:text-slate-300 transition-colors" />
-          </Link>
+          <UserButton />
         </div>
         <div className="text-[10px] text-slate-600 font-mono mt-1 flex items-center gap-2 uppercase tracking-widest">
           <span className="w-1.5 h-1.5 bg-emerald-900 rounded-full animate-pulse shadow-[0_0_5px_#059669]"></span>

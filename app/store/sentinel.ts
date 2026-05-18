@@ -15,7 +15,7 @@ const DEFAULT_STATS: Stats = {
 }
 
 const WS_MAX_RETRIES = 3          // give up on WS after 3 quick failures (serverless)
-const POLL_INTERVAL_MS = 4000     // HTTP poll cadence when WS is unavailable
+const POLL_INTERVAL_MS = 8000     // 8s poll — avoids hammering Vercel serverless cold starts
 
 interface SentinelStore {
   incidents: Incident[]
