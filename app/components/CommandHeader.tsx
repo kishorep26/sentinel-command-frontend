@@ -13,9 +13,14 @@ export default function CommandHeader() {
   const connect = useSentinel((s) => s.connect)
   const [isResetting, setIsResetting] = useState(false)
   const [prevConnected, setPrevConnected] = useState<boolean | null>(null)
+  const [clock, setClock] = useState('')  // empty on SSR, set on client
 
   useEffect(() => {
     connect()
+    const tick = () => setClock(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }))
+    tick()
+    const t = setInterval(tick, 1000)
+    return () => clearInterval(t)
   }, [connect])
 
   useEffect(() => {
@@ -113,7 +118,7 @@ export default function CommandHeader() {
           <div className="flex items-center gap-3 text-white">
             <Clock className="w-4 h-4 text-slate-600" />
             <span className="text-2xl font-bold font-mono tracking-widest text-slate-300">
-              {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              {clock || '--:--'}
             </span>
           </div>
           <button
@@ -130,7 +135,7 @@ export default function CommandHeader() {
         </div>
         <div className="text-[10px] text-slate-600 font-mono mt-1 flex items-center gap-2 uppercase tracking-widest">
           <span className="w-1.5 h-1.5 bg-emerald-900 rounded-full animate-pulse shadow-[0_0_5px_#059669]"></span>
-          SECURE • {Intl.DateTimeFormat().resolvedOptions().timeZone.split('/')[1]?.toUpperCase() || 'UNKNOWN'}
+          SECURE • {clock ? (Intl.DateTimeFormat().resolvedOptions().timeZone.split('/')[1]?.toUpperCase() || 'UNKNOWN') : '...'}
         </div>
       </div>
     </div>
