@@ -1,10 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { useAuth } from '@clerk/nextjs'
 import Link from 'next/link'
-import { Shield, RotateCcw, Trophy, Clock, Target, Zap } from 'lucide-react'
+import { Shield, RotateCcw, Clock, Target, Zap } from 'lucide-react'
 import { training } from '@/app/lib/api'
 import type { TrainingSession } from '@/app/types'
 
@@ -19,7 +19,6 @@ function GradeLabel({ pct }: { pct: number }) {
 export default function SessionResults() {
   const { id } = useParams<{ id: string }>()
   const { getToken } = useAuth()
-  const router = useRouter()
   const [session, setSession] = useState<TrainingSession | null>(null)
 
   useEffect(() => {

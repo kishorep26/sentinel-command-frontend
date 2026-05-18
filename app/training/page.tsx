@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth, UserButton } from '@clerk/nextjs'
-import { Shield, Clock, Zap, ChevronRight, BookOpen, BarChart3 } from 'lucide-react'
+import { Shield, Clock, Zap, ChevronRight, BarChart3 } from 'lucide-react'
 import { training } from '@/app/lib/api'
 import type { Scenario } from '@/app/types'
 

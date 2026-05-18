@@ -1,6 +1,6 @@
 import './globals.css'
 import type { Metadata } from 'next'
-import { ClerkProvider, Show, UserButton, SignInButton } from '@clerk/nextjs'
+import { ClerkProvider } from '@clerk/nextjs'
 import { Toaster } from 'sonner'
 
 export const metadata: Metadata = {
