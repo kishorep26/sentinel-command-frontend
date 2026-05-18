@@ -58,14 +58,18 @@ export default function ScenarioEditor() {
     if (!selectedLocation) { alert('Please select a location from the suggestions'); return }
     setLoading(true)
     try {
-      const incident = await api.incidents.create({
+      const incidents = await api.incidents.create({
         type: 'auto',
         location: { lat: formData.lat, lon: formData.lon },
         description: formData.description || formData.address,
       })
-      toast.success(`${incident.type.toUpperCase()} incident deployed`, {
-        description: `Unit dispatched — ID #${incident.id}`,
-      })
+      const types = incidents.map((i) => i.type.toUpperCase()).join(' + ')
+      toast.success(
+        incidents.length > 1
+          ? `${incidents.length} units deployed — ${types}`
+          : `${types} incident deployed`,
+        { description: `${incidents.length} unit(s) dispatched to location` },
+      )
       setIsOpen(false)
       setFormData({ address: '', lat: 40.7128, lon: -74.006, description: '' })
       setSelectedLocation(null)

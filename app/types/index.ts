@@ -61,7 +61,7 @@ export interface RiskZone {
 }
 
 export interface CreateIncidentPayload {
-  type: string
+  type: string              // "auto" lets AI detect all types from the description
   location: IncidentLocation
   description: string
 }

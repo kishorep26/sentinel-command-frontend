@@ -40,7 +40,7 @@ export const api = {
   incidents: {
     list: () => fetchJson<Incident[]>('/incidents'),
     create: (payload: CreateIncidentPayload) =>
-      mutateJson<Incident>('POST', '/incidents', payload),
+      mutateJson<Incident[]>('POST', '/incidents', payload),
     resolve: (id: number) =>
       mutateJson<Incident>('PUT', `/incidents/${id}/resolve`),
   },
