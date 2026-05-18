@@ -14,6 +14,9 @@ const DEFAULT_STATS: Stats = {
   active_agents: 0,
 }
 
+const WS_MAX_RETRIES = 3          // give up on WS after 3 quick failures (serverless)
+const POLL_INTERVAL_MS = 4000     // HTTP poll cadence when WS is unavailable
+
 interface SentinelStore {
   incidents: Incident[]
   agents: Agent[]
@@ -22,11 +25,15 @@ interface SentinelStore {
   connected: boolean
   _ws: WebSocket | null
   _reconnectTimer: ReturnType<typeof setTimeout> | null
+  _pollTimer: ReturnType<typeof setInterval> | null
+  _wsFailures: number
 
   connect: () => void
   disconnect: () => void
   refresh: () => Promise<void>
   _applyUpdate: (update: StateUpdate) => void
+  _startPolling: () => void
+  _stopPolling: () => void
 }
 
 export const useSentinel = create<SentinelStore>((set, get) => ({
@@ -37,6 +44,8 @@ export const useSentinel = create<SentinelStore>((set, get) => ({
   connected: false,
   _ws: null,
   _reconnectTimer: null,
+  _pollTimer: null,
+  _wsFailures: 0,
 
   _applyUpdate: (update: StateUpdate) => {
     set({
@@ -61,29 +70,57 @@ export const useSentinel = create<SentinelStore>((set, get) => ({
     }
   },
 
+  _startPolling: () => {
+    if (get()._pollTimer) return
+    // Do an immediate fetch then poll on interval
+    get().refresh()
+    const timer = setInterval(() => get().refresh(), POLL_INTERVAL_MS)
+    set({ _pollTimer: timer })
+  },
+
+  _stopPolling: () => {
+    const t = get()._pollTimer
+    if (t) { clearInterval(t); set({ _pollTimer: null }) }
+  },
+
   connect: () => {
     const state = get()
+
+    // Already have an open WS
     if (state._ws && state._ws.readyState === WebSocket.OPEN) return
+
+    // Given up on WS — just poll
+    if (state._wsFailures >= WS_MAX_RETRIES) {
+      get()._startPolling()
+      return
+    }
 
     const ws = connectWebSocket(
       (data) => {
         get()._applyUpdate(data as unknown as StateUpdate)
       },
       () => {
-        set({ connected: true })
+        // Connected — stop any fallback polling
+        set({ connected: true, _wsFailures: 0 })
+        get()._stopPolling()
         const t = get()._reconnectTimer
-        if (t) clearTimeout(t)
-        set({ _reconnectTimer: null })
+        if (t) { clearTimeout(t); set({ _reconnectTimer: null }) }
       },
       () => {
-        set({ connected: false, _ws: null })
-        // Reconnect after 3 seconds, then fall back to HTTP polling
-        const timer = setTimeout(() => {
-          get().connect()
-        }, 3000)
+        const failures = get()._wsFailures + 1
+        set({ connected: false, _ws: null, _wsFailures: failures })
+
+        if (failures >= WS_MAX_RETRIES) {
+          // WS not supported (serverless) — switch permanently to HTTP polling
+          console.info('[Sentinel] WS unavailable after', failures, 'attempts — switching to HTTP polling')
+          get()._startPolling()
+          return
+        }
+
+        // Transient failure — retry WS once
+        const timer = setTimeout(() => get().connect(), 3000)
         set({ _reconnectTimer: timer })
-        // Immediately do an HTTP refresh so UI isn't stale
-        get().refresh()
+        get().refresh() // immediate refresh while waiting
       },
     )
     set({ _ws: ws })
@@ -93,6 +130,7 @@ export const useSentinel = create<SentinelStore>((set, get) => ({
     const { _ws, _reconnectTimer } = get()
     if (_reconnectTimer) clearTimeout(_reconnectTimer)
     _ws?.close()
-    set({ _ws: null, connected: false, _reconnectTimer: null })
+    get()._stopPolling()
+    set({ _ws: null, connected: false, _reconnectTimer: null, _wsFailures: 0 })
   },
 }))
