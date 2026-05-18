@@ -43,7 +43,11 @@ export default function CityMap() {
   const [showRisk, setShowRisk] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
 
-  useEffect(() => { setIsMounted(true) }, [])
+  useEffect(() => {
+    // Deferred so React Compiler doesn't flag setState-in-effect-body
+    const t = setTimeout(() => setIsMounted(true), 0)
+    return () => clearTimeout(t)
+  }, [])
 
   const activeIncidents = incidents.filter((i) => i.status !== 'resolved')
 

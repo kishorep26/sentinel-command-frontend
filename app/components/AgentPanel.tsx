@@ -105,7 +105,7 @@ export default function AgentPanel() {
               <div className="flex justify-between items-center text-[10px] text-gray-500 font-mono border-t border-white/5 pt-3">
                 <div>EFF: <span className="text-white">{agent.efficiency}%</span></div>
                 <div>RESP: <span className="text-white">{agent.successful_responses}</span></div>
-                <div>UPD: <span className="text-gray-400">{new Date(agent.updated_at || Date.now()).toLocaleTimeString()}</span></div>
+                <div>UPD: <span className="text-gray-400">{agent.updated_at ? new Date(agent.updated_at).toLocaleTimeString() : '—'}</span></div>
               </div>
             </div>
           ))
