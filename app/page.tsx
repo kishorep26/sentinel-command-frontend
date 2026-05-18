@@ -46,13 +46,21 @@ export default function LandingPage() {
           <br />Intelligent emergency response coordination powered by <span className="text-slate-300 font-bold tracking-widest uppercase">Neural Networks</span>.
         </p>
 
-        <div className="flex flex-col md:flex-row gap-6 items-center">
+        <div className="flex flex-col md:flex-row gap-4 items-center">
           <Link
             href="/dashboard"
             className="group relative px-12 py-6 bg-white text-black font-bold text-lg overflow-hidden hover:bg-amber-500 transition-colors duration-300 rounded-sm"
           >
             <span className="relative z-10 flex items-center gap-4 tracking-widest uppercase">
-              Initialize Interface <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              Live Dispatch <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </span>
+          </Link>
+          <Link
+            href="/training"
+            className="group px-12 py-6 border border-slate-700 text-slate-300 font-bold text-lg hover:border-amber-500/50 hover:text-amber-400 transition-colors duration-300 rounded-sm"
+          >
+            <span className="flex items-center gap-4 tracking-widest uppercase">
+              Training Simulator <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </span>
           </Link>
         </div>

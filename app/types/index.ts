@@ -60,6 +60,53 @@ export interface RiskZone {
   label: string
 }
 
+// ── Training Platform ──────────────────────────────────────────────────────────
+
+export interface ScenarioEvent {
+  at_seconds: number
+  type: string
+  lat: number
+  lon: number
+  description: string
+}
+
+export interface Scenario {
+  id: number
+  name: string
+  description: string
+  difficulty: 'beginner' | 'intermediate' | 'advanced'
+  duration_minutes: number
+  events: ScenarioEvent[]
+  is_template: boolean
+  created_at: string
+}
+
+export interface EventResult {
+  event_index: number
+  incident_type: string
+  expected_type: string
+  response_time_ms: number
+}
+
+export interface TrainingSession {
+  id: number
+  scenario_id: number
+  scenario_name: string
+  trainee_id: string
+  trainee_name: string | null
+  status: 'active' | 'completed' | 'abandoned'
+  score: number
+  max_score: number
+  correct_dispatches: number
+  total_dispatches: number
+  avg_response_ms: number
+  started_at: string
+  completed_at: string | null
+  event_results: EventResult[]
+}
+
+// ── Incident ───────────────────────────────────────────────────────────────────
+
 export interface CreateIncidentPayload {
   type: string              // "auto" lets AI detect all types from the description
   location: IncidentLocation

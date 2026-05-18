@@ -1,10 +1,13 @@
 import type {
   Agent,
   CreateIncidentPayload,
+  EventResult,
   Incident,
   IncidentHistoryEntry,
   RiskZone,
+  Scenario,
   Stats,
+  TrainingSession,
 } from '@/app/types'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
@@ -23,13 +26,16 @@ async function mutateJson<T>(
   method: string,
   path: string,
   body?: unknown,
+  authToken?: string,
 ): Promise<T> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'x-api-key': API_KEY,
+  }
+  if (authToken) headers['Authorization'] = `Bearer ${authToken}`
   const res = await fetch(`${API_URL}${path}`, {
     method,
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': API_KEY,
-    },
+    headers,
     body: body !== undefined ? JSON.stringify(body) : undefined,
   })
   if (!res.ok) throw new Error(`${method} ${path} failed: ${res.status}`)
@@ -67,6 +73,29 @@ export const api = {
     classifyIncident: (desc: string) =>
       mutateJson<{ category: string; confidence: number }>('POST', '/classify-incident', { desc }),
   },
+}
+
+export const training = {
+  scenarios: {
+    list: () => fetchJson<Scenario[]>('/training/scenarios'),
+    get: (id: number) => fetchJson<Scenario>(`/training/scenarios/${id}`),
+  },
+  sessions: {
+    start: (scenarioId: number, traineeName?: string, token?: string) =>
+      mutateJson<TrainingSession>('POST', '/training/sessions/start', { scenario_id: scenarioId, trainee_name: traineeName }, token),
+    complete: (sessionId: number, eventResults: EventResult[], token?: string) =>
+      mutateJson<TrainingSession>('POST', `/training/sessions/${sessionId}/complete`, { event_results: eventResults }, token),
+    mine: (token?: string) => fetchJsonAuth<TrainingSession[]>('/training/sessions', token),
+    all: (token?: string) => fetchJsonAuth<TrainingSession[]>('/training/instructor/sessions', token),
+  },
+}
+
+async function fetchJsonAuth<T>(path: string, token?: string): Promise<T> {
+  const headers: Record<string, string> = { 'Cache-Control': 'no-cache' }
+  if (token) headers['Authorization'] = `Bearer ${token}`
+  const res = await fetch(`${API_URL}${path}`, { cache: 'no-store', headers })
+  if (!res.ok) throw new Error(`GET ${path} failed: ${res.status}`)
+  return res.json() as Promise<T>
 }
 
 export function getUpdatesSocket(): WebSocket {
