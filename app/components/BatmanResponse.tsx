@@ -15,7 +15,7 @@ export default function BatmanResponse() {
   const [countdown, setCountdown] = useState(10)
 
   useEffect(() => {
-    if (activeCount > 6 && !isActive) {
+    if (activeCount > 8 && !isActive) {
       triggerProtocol()
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps

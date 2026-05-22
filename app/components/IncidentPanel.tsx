@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Flame, Car, HeartPulse, Siren, AlertTriangle, CheckCircle2 } from 'lucide-react'
+import { Flame, Car, HeartPulse, Siren, AlertTriangle, CheckCircle2, Trash2, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useSentinel } from '@/app/store/sentinel'
 import { api } from '@/app/lib/api'
@@ -68,11 +68,28 @@ function IncidentCard({ incident, onResolve, resolving }: {
 }
 
 export default function IncidentPanel() {
-  const incidents = useSentinel((s) => s.incidents)
-  const refresh   = useSentinel((s) => s.refresh)
-  const [resolving, setResolving] = useState<number | null>(null)
+  const incidents    = useSentinel((s) => s.incidents)
+  const refresh      = useSentinel((s) => s.refresh)
+  const [resolving, setResolving]       = useState<number | null>(null)
+  const [resolvingAll, setResolvingAll] = useState(false)
 
   const active = incidents.filter((i) => i.status !== 'resolved')
+
+  const resolveAll = async () => {
+    if (active.length === 0) return
+    setResolvingAll(true)
+    try {
+      await Promise.allSettled(active.map((i) => api.incidents.resolve(i.id)))
+      await refresh()
+      toast.success(`${active.length} incident${active.length > 1 ? 's' : ''} resolved`, {
+        description: 'All units returning to patrol',
+      })
+    } catch (e) {
+      toast.error('Failed to resolve all', { description: String(e) })
+    } finally {
+      setResolvingAll(false)
+    }
+  }
 
   const resolveIncident = async (id: number) => {
     setResolving(id)
@@ -89,23 +106,36 @@ export default function IncidentPanel() {
 
   return (
     <div className="glass-panel rounded-xl h-full flex flex-col border border-slate-800/50">
-      <div className="flex items-center gap-2.5 px-5 py-4 border-b border-slate-800/50">
+      <div className="flex items-center gap-2.5 px-4 py-3 border-b border-slate-800/50">
         <div className="relative">
           <Siren className="w-4 h-4 text-amber-500" />
           {active.length > 0 && (
             <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-red-500 animate-ping" />
           )}
         </div>
-        <span className="text-sm font-bold text-white tracking-wider uppercase font-mono">
-          Active Incidents
-        </span>
-        <span className={`ml-auto text-[10px] font-mono px-2 py-0.5 rounded border ${
+        <span className="text-sm font-bold text-white tracking-wider uppercase font-mono">Incidents</span>
+        <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded border ${
           active.length > 0
             ? 'text-red-400 border-red-500/25 bg-red-500/10'
             : 'text-slate-600 border-slate-800 bg-transparent'
         }`}>
           {active.length}
         </span>
+
+        {/* Resolve all button — always visible when there are active incidents */}
+        {active.length > 0 && (
+          <button
+            onClick={resolveAll}
+            disabled={resolvingAll}
+            title="Resolve all active incidents"
+            className="ml-auto flex items-center gap-1.5 text-[10px] font-mono px-2.5 py-1.5 rounded-lg border border-red-500/25 bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:border-red-500/40 transition-all disabled:opacity-40 uppercase tracking-wider"
+          >
+            {resolvingAll
+              ? <><Loader2 className="w-3 h-3 animate-spin" /> Clearing</>
+              : <><Trash2 className="w-3 h-3" /> Clear All</>
+            }
+          </button>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
